@@ -1,69 +1,46 @@
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+import java.util.*;
+import javax.crypto.*;
 import java.util.Base64;
 
-public class DESEncryption {
-    private SecretKey secretKey;
-    private Cipher cipher;
-
-    public DESEncryption() throws Exception {
-        // Initialize DES key
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("DES");
-        keyGenerator.init(56); // DES uses 56-bit keys
-        this.secretKey = keyGenerator.generateKey();
-        
-        // Initialize cipher
-        this.cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+public class des {
+    public static void main(String[] args) {
+        try {
+            String plainText = "hello world";
+            System.out.println("Original text: " + plainText);
+            
+            // Generating the secret key
+            SecretKey sk = generateDESKey();
+            
+            // Encrypt method calling
+            String encryptedText = encrypt(plainText, sk);
+            System.out.println("Encrypted text is: " + encryptedText);
+            
+            // Decrypt method calling
+            String decryptedText = decrypt(encryptedText, sk);
+            System.out.println("Decrypted text is: " + decryptedText);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
     }
 
-    public String encrypt(String plainText) throws Exception {
-        // Convert input string to bytes
-        byte[] plainTextBytes = plainText.getBytes("UTF-8");
-        
-        // Initialize cipher for encryption
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        
-        // Encrypt the text
-        byte[] encryptedBytes = cipher.doFinal(plainTextBytes);
-        
-        // Convert to Base64 for readable string output
+    public static SecretKey generateDESKey() throws Exception {
+        KeyGenerator keyGen = KeyGenerator.getInstance("DES");
+        keyGen.init(56);
+        return keyGen.generateKey();
+    }
+
+    public static String encrypt(String plainText, SecretKey sk) throws Exception {
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, sk);
+        byte[] encryptedBytes = cipher.doFinal(plainText.getBytes("UTF-8"));
         return Base64.getEncoder().encodeToString(encryptedBytes);
     }
 
-    public String decrypt(String encryptedText) throws Exception {
-        // Decode Base64 string to bytes
-        byte[] encryptedBytes = Base64.getDecoder().decode(encryptedText);
-        
-        // Initialize cipher for decryption
-        cipher.init(Cipher.DECRYPT_MODE, secretKey);
-        
-        // Decrypt the text
-        byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
-        
-        // Convert back to string
+    public static String decrypt(String encryptedText, SecretKey sk) throws Exception {
+        Cipher cipher = Cipher.getInstance("DES/ECB/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, sk);
+        byte[] decodedBytes = Base64.getDecoder().decode(encryptedText);
+        byte[] decryptedBytes = cipher.doFinal(decodedBytes);
         return new String(decryptedBytes, "UTF-8");
-    }
-
-    public static void main(String[] args) {
-        try {
-            DESEncryption des = new DESEncryption();
-            
-            // Example usage
-            String originalText = "Hello, this is a secret message!";
-            System.out.println("Original text: " + originalText);
-            
-            // Encrypt
-            String encryptedText = des.encrypt(originalText);
-            System.out.println("Encrypted text: " + encryptedText);
-            
-            // Decrypt
-            String decryptedText = des.decrypt(encryptedText);
-            System.out.println("Decrypted text: " + decryptedText);
-            
-        } catch (Exception e) {
-            System.err.println("Error: " + e.getMessage());
-            e.printStackTrace();
-        }
     }
 }
