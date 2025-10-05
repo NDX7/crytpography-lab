@@ -1,45 +1,46 @@
-import java.util.Scanner;
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
+import java.util.*;
+import javax.crypto.*;
+import java.util.Base64;
 
-public class rc4 {
+public class SimpleRC4 {
     public static void main(String[] args) {
-        try (Scanner scanner = new Scanner(System.in)) {
-            System.out.print("Enter the plaintext: ");
-            String plaintext = scanner.nextLine();
+        try {
+            String plainText = "hello world";
+            System.out.println("Original text: " + plainText);
 
-            System.out.print("Enter the key: ");
-            String key = scanner.nextLine();
+            // Generate the secret key
+            SecretKey sk = generateRC4Key();
 
-            byte[] ciphertext = encrypt(key.getBytes(), plaintext.getBytes());
-            System.out.println("Ciphertext (hex): " + toHex(ciphertext));
+            // Encrypt method calling
+            String encryptedText = encrypt(plainText, sk);
+            System.out.println("Encrypted text is: " + encryptedText);
 
-            byte[] decryptedText = decrypt(key.getBytes(), ciphertext);
-            System.out.println("Decrypted plaintext: " + new String(decryptedText));
+            // Decrypt method calling
+            String decryptedText = decrypt(encryptedText, sk);
+            System.out.println("Decrypted text is: " + decryptedText);
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
     }
 
-    private static byte[] encrypt(byte[] key, byte[] data) throws Exception {
-        SecretKeySpec keySpec = new SecretKeySpec(key, "ARCFOUR");
-        Cipher cipher = Cipher.getInstance("ARCFOUR");
-        cipher.init(Cipher.ENCRYPT_MODE, keySpec);
-        return cipher.doFinal(data);
+    public static SecretKey generateRC4Key() throws Exception {
+        KeyGenerator keyGen = KeyGenerator.getInstance("ARCFOUR");
+        keyGen.init(128); // RC4 key size (40-2048 bits, 128 for example)
+        return keyGen.generateKey();
     }
 
-    private static byte[] decrypt(byte[] key, byte[] data) throws Exception {
-        SecretKeySpec keySpec = new SecretKeySpec(key, "ARCFOUR");
+    public static String encrypt(String plainText, SecretKey sk) throws Exception {
         Cipher cipher = Cipher.getInstance("ARCFOUR");
-        cipher.init(Cipher.DECRYPT_MODE, keySpec);
-        return cipher.doFinal(data);
+        cipher.init(Cipher.ENCRYPT_MODE, sk);
+        byte[] encryptedBytes = cipher.doFinal(plainText.getBytes("UTF-8"));
+        return Base64.getEncoder().encodeToString(encryptedBytes);
     }
 
-    private static String toHex(byte[] data) {
-        StringBuilder hexString = new StringBuilder();
-        for (byte b : data) {
-            hexString.append(String.format("%02X", b & 0xFF));
-        }
-        return hexString.toString();
+    public static String decrypt(String encryptedText, SecretKey sk) throws Exception {
+        Cipher cipher = Cipher.getInstance("ARCFOUR");
+        cipher.init(Cipher.DECRYPT_MODE, sk);
+        byte[] decodedBytes = Base64.getDecoder().decode(encryptedText);
+        byte[] decryptedBytes = cipher.doFinal(decodedBytes);
+        return new String(decryptedBytes, "UTF-8");
     }
 }
