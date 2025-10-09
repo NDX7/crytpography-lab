@@ -1,30 +1,24 @@
 import java.util.Scanner;
 
-public class hash {
-
-    public static byte xorHash(byte[] data) {
-        byte result = 0;
-        for (byte b : data) {
-            result ^= b;
+public class XORHash {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        try {
+            System.out.println("Enter the text to hash: ");
+            String input = sc.nextLine();
+            int hash = computeXORHash(input);
+            System.out.println("8-bit XOR Hash: " + hash);
+        } finally {
+            sc.close();
         }
-        return result;
     }
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Enter a string to hash with XOR: ");
-        String input = scanner.nextLine();
-
-        byte[] bytes = input.getBytes();
-
-        byte hash = xorHash(bytes);
-
-        System.out.println("XOR Hash (decimal): " + (hash & 0xFF));
-
-        System.out.println("XOR Hash (hex): 0x" + Integer.toHexString(hash &
-                0xFF).toUpperCase());
-
-        scanner.close();
+    public static int computeXORHash(String input) {
+        byte[] bytes = input.getBytes(); // Convert string to bytes (default UTF-8)
+        byte hash = 0; // Initialize 8-bit hash
+        for (byte b : bytes) {
+            hash ^= b; // XOR each byte with the current hash
+        }
+        return hash & 0xFF; // Convert to unsigned int (0–255)
     }
 }
