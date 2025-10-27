@@ -1,54 +1,56 @@
+
 import java.util.Scanner;
 
 public class SubstitutionCipher {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        
-        // Get key and plaintext from user
-        System.out.println("Enter 26-character key (e.g., QWERTYUIOPASDFGHJKLZXCVBNM):");
-        String key = scanner.nextLine().toUpperCase();
-        
-        System.out.println("Enter plaintext:");
-        String plaintext = scanner.nextLine().toUpperCase();
-        
-        // Perform encryption
-        String ciphertext = encrypt(plaintext, key);
-        System.out.println("Ciphertext: " + ciphertext);
-        
-        // Perform decryption
-        String decryptedText = decrypt(ciphertext, key);
-        System.out.println("Decrypted text: " + decryptedText);
-        
-        scanner.close();
-    }
+    private static final String ALPHABET = "abcdefghijklmnopqrstuvwxyz";
+    private static final String KEY = "zyxwvutsrqponmlkjihgfedcba";
     
-    public static String encrypt(String plaintext, String key) {
+    public static String encrypt(String plaintext) {
         StringBuilder ciphertext = new StringBuilder();
-        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        plaintext = plaintext.toLowerCase();
         
-        for (char c : plaintext.toCharArray()) {
-            if (Character.isLetter(c)) {
-                int index = alphabet.indexOf(c);
-                ciphertext.append(key.charAt(index));
+        for (char character : plaintext.toCharArray()) {
+            int index = ALPHABET.indexOf(character);
+            
+            if (index != -1) {
+                ciphertext.append(KEY.charAt(index));
             } else {
-                ciphertext.append(c); // Keep non-letters unchanged
+                ciphertext.append(character);
             }
         }
+        
         return ciphertext.toString();
     }
     
-    public static String decrypt(String ciphertext, String key) {
+    public static String decrypt(String ciphertext) {
         StringBuilder plaintext = new StringBuilder();
-        String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        ciphertext = ciphertext.toLowerCase();
         
-        for (char c : ciphertext.toCharArray()) {
-            if (Character.isLetter(c)) {
-                int index = key.indexOf(c);
-                plaintext.append(alphabet.charAt(index));
+        for (char character : ciphertext.toCharArray()) {
+            int index = KEY.indexOf(character);
+            
+            if (index != -1) {
+                plaintext.append(ALPHABET.charAt(index));
             } else {
-                plaintext.append(c); // Keep non-letters unchanged
+                plaintext.append(character);
             }
         }
+        
         return plaintext.toString();
+    }
+    
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.print("Enter the message to encrypt: ");
+        String originalMessage = scanner.nextLine();
+        
+        String encryptedMessage = encrypt(originalMessage);
+        System.out.println("Encrypted message: " + encryptedMessage);
+        
+        String decryptedMessage = decrypt(encryptedMessage);
+        System.out.println("Decrypted message: " + decryptedMessage);
+        
+        scanner.close();
     }
 }
